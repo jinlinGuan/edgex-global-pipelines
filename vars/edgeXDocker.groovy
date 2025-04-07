@@ -430,7 +430,9 @@ def multiArch(image) {
         }
         echo "registry: ${registry}"
         docker.withRegistry(registry) {
-            sh "sudo docker manifest create ${image} --amend ${x86Image} --amend ${armImage} && docker push ${image}"
+            sh "sudo docker manifest create ${image} --amend ${x86Image} --amend ${armImage}"
+            sh "sudo docker manifest inspect ${image}"
+            sh "sudo docker manifest push ${image}"
     }
 
     image
