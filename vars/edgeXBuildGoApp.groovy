@@ -218,33 +218,33 @@ def call(config) {
                                         }
                                     }
 
-                                    stage('Test') {
-                                        // need to always run this stage due to codecov always needing the coverage.out file
-                                        // when {
-                                        //     expression { !edgex.isReleaseStream() }
-                                        // }
-                                        steps {
-                                            script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
-                                                    // fixes permissions issues due new Go 1.18 buildvcs checks
-                                                    sh 'git config --global --add safe.directory $WORKSPACE'
-                                                    
-                                                    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
-                                                    if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
-                                                        sh 'go mod tidy' // for Go 1.16
-                                                    }
-                                                    sh "${env.TEST_SCRIPT}"
-
-                                                    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
-                                                    if(edgex.isLTS() && fileExists('vendor')) {
-                                                        sh 'go mod tidy'
-                                                    }
-                                                }
-                                                sh 'sudo chown -R jenkins:jenkins .' // fix perms
-                                                stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
-                                            }
-                                        }
-                                    }
+//                                     stage('Test') {
+//                                         // need to always run this stage due to codecov always needing the coverage.out file
+//                                         // when {
+//                                         //     expression { !edgex.isReleaseStream() }
+//                                         // }
+//                                         steps {
+//                                             script {
+//                                                 docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
+//                                                     // fixes permissions issues due new Go 1.18 buildvcs checks
+//                                                     sh 'git config --global --add safe.directory $WORKSPACE'
+//
+//                                                     // TODO: This should go away after Kamakura, all repos now have a go.sum file.
+//                                                     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
+//                                                         sh 'go mod tidy' // for Go 1.16
+//                                                     }
+//                                                     sh "${env.TEST_SCRIPT}"
+//
+//                                                     // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+//                                                     if(edgex.isLTS() && fileExists('vendor')) {
+//                                                         sh 'go mod tidy'
+//                                                     }
+//                                                 }
+//                                                 sh 'sudo chown -R jenkins:jenkins .' // fix perms
+//                                                 stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+//                                             }
+//                                         }
+//                                     }
 
                                     stage('Build') {
                                         when { environment name: 'SHOULD_BUILD', value: 'true' }
@@ -258,7 +258,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
@@ -334,33 +334,33 @@ def call(config) {
                                         }
                                     }
 
-                                    stage('Test') {
-                                        // need to always run this stage due to codecov always needing the coverage.out file
-                                        // when {
-                                        //     expression { !edgex.isReleaseStream() }
-                                        // }
-                                        steps {
-                                            script {
-                                                docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
-                                                    // fixes permissions issues due new Go 1.18 buildvcs checks
-                                                    sh 'git config --global --add safe.directory $WORKSPACE'
-
-                                                    // TODO: This should go away after Kamakura, all repos now have a go.sum file.
-                                                    if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
-                                                        sh 'go mod tidy' // for Go 1.16
-                                                    }
-                                                    sh "${env.TEST_SCRIPT}"
-
-                                                    // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
-                                                    if(edgex.isLTS() && fileExists('vendor')) {
-                                                        sh 'go mod tidy'
-                                                    }
-                                                }
-                                                sh 'sudo chown -R jenkins:jenkins .' // fix perms
-                                                stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
-                                            }
-                                        }
-                                    }
+//                                     stage('Test') {
+//                                         // need to always run this stage due to codecov always needing the coverage.out file
+//                                         // when {
+//                                         //     expression { !edgex.isReleaseStream() }
+//                                         // }
+//                                         steps {
+//                                             script {
+//                                                 docker.image("ci-base-image-${env.ARCH}").inside('-u 0:0 --privileged -v /var/run/docker.sock:/var/run/docker.sock') {
+//                                                     // fixes permissions issues due new Go 1.18 buildvcs checks
+//                                                     sh 'git config --global --add safe.directory $WORKSPACE'
+//
+//                                                     // TODO: This should go away after Kamakura, all repos now have a go.sum file.
+//                                                     if(!fileExists('go.sum') && env.GO_VERSION =~ '1.16') {
+//                                                         sh 'go mod tidy' // for Go 1.16
+//                                                     }
+//                                                     sh "${env.TEST_SCRIPT}"
+//
+//                                                     // deal with changes that can happen to the go.mod file when dealing with vendored dependencies
+//                                                     if(edgex.isLTS() && fileExists('vendor')) {
+//                                                         sh 'go mod tidy'
+//                                                     }
+//                                                 }
+//                                                 sh 'sudo chown -R jenkins:jenkins .' // fix perms
+//                                                 stash name: 'coverage-report', includes: '**/*coverage.out', useDefaultExcludes: false, allowEmpty: true
+//                                             }
+//                                         }
+//                                     }
 
                                     stage('Build') {
                                         when { environment name: 'SHOULD_BUILD', value: 'true' }
@@ -376,7 +376,7 @@ def call(config) {
                                             allOf {
                                                 environment name: 'BUILD_DOCKER_IMAGE', value: 'true'
                                                 environment name: 'PUSH_DOCKER_IMAGE', value: 'true'
-                                                expression { edgex.isReleaseStream() }
+                                                //expression { edgex.isReleaseStream() }
                                             }
                                         }
 
@@ -422,18 +422,32 @@ def call(config) {
                     // We should be back on the mainAgent here.
 
                     // CodeCov should only run once, no need to run per arch only
-                    stage('CodeCov') {
-                        when {
-                            allOf {
-                                environment name: 'SILO', value: 'production'
-                                // expression { !edgex.isReleaseStream() } // always run the codecov scan
+                    stage("Create Multi-Arch Images") {
+                        steps {
+                            script {
+                                sh "docker version"
+                                sh "docker info"
+                                image = taggedAMD64Images.find { it.contains("latest") }
+                                if (image) {
+                                    echo "building multi-arch image for ${image}"
+                                    edgeXDockerLogin(settingsFile: env.MAVEN_SETTINGS)
+                                    edgeXDocker.multiArch(image)
+                                }
                             }
                         }
-                        steps {
-                            unstash 'coverage-report'
-                            edgeXCodecov "${env.PROJECT}-codecov-token"
-                        }
                     }
+//                     stage('CodeCov') {
+//                         when {
+//                             allOf {
+//                                 environment name: 'SILO', value: 'production'
+//                                 // expression { !edgex.isReleaseStream() } // always run the codecov scan
+//                             }
+//                         }
+//                         steps {
+//                             unstash 'coverage-report'
+//                             edgeXCodecov "${env.PROJECT}-codecov-token"
+//                         }
+//                     }
 
                     // Scan Go Dependencies (snyk monitor)
                     stage('Snyk Dependency Scan') {

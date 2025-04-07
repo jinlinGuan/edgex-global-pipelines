@@ -162,7 +162,7 @@ def push(dockerImage, latest = true, nexusRepo = 'staging', tags = null) {
 
     pushedImages = pushDockerImage(dockerImage, latest, nexusRepo, tags)
 
-    pushMultiArchImages(pushedImages)
+    //pushMultiArchImages(pushedImages)
 
     pushedImages
 }
@@ -424,7 +424,14 @@ def multiArch(image) {
 
     // The x86 image will need to be pushed before the manifest can be created.
     sh "docker push ${x86Image}"
-    sh "docker manifest create ${image} --amend ${x86Image} --amend ${armImage}"
+    def registry = "https://${parsedImage.host}"
+        if(parsedImage.namespace) {
+            registry += "/${parsedImage.namespace}"
+        }
+        echo "registry: ${registry}"
+        docker.withRegistry(registry) {
+            sh "sudo docker manifest create ${image} --amend ${x86Image} --amend ${armImage} && docker push ${image}"
+    }
 
     image
 }
